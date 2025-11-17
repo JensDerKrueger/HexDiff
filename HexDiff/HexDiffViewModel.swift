@@ -1,6 +1,12 @@
 import Foundation
 import Combine
 
+enum HoverSide {
+  case left
+  case right
+}
+
+/// Art des Unterschieds zwischen zwei Bytes.
 enum DiffKind {
   case equal
   case changed
@@ -8,6 +14,7 @@ enum DiffKind {
   case removed
 }
 
+/// Diff-Information für eine einzelne Byte-Position (links/rechts).
 struct ByteDiff {
   let leftIndex: Int?
   let rightIndex: Int?
@@ -18,12 +25,11 @@ struct ByteDiff {
   let kind: DiffKind
 }
 
+/// Eine Zeile mit bis zu 16 Bytes links/rechts.
 struct DiffLine: Identifiable {
   let id: Int
-
   let lineOffsetLeft: Int?
   let lineOffsetRight: Int?
-
   let cells: [ByteDiff]
 }
 
@@ -185,6 +191,8 @@ final class HexDiffViewModel: ObservableObject {
   @Published var isProcessing: Bool = false
   @Published var processingMessage: String? = nil
 
+  @Published var hoverStatus: String? = nil
+
   private let differenceLineLimit = 1000
 
   var differenceCount: Int {
@@ -331,6 +339,27 @@ final class HexDiffViewModel: ObservableObject {
     }
   }
 
+  func setHoveredOffset(side: HoverSide?, offset: Int?) {
+    guard let side = side, let offset = offset else {
+      hoverStatus = nil
+      return
+    }
+
+    let address = HexFormatting.addressString(for: offset)
+    let key: String
+    switch side {
+      case .left:
+        key = "status.hover.left %@"   // Left: %@
+      case .right:
+        key = "status.hover.right %@"
+    }
+    let format = NSLocalizedString(
+      key,
+      comment: "Status bar hover address"
+    )
+    hoverStatus = String(format: format, address)
+  }
+
   func reset() {
     leftURL = nil
     rightURL = nil
@@ -341,6 +370,7 @@ final class HexDiffViewModel: ObservableObject {
     currentDifferenceIndex = nil
     isProcessing = false
     processingMessage = nil
+    hoverStatus = nil
   }
 }
 

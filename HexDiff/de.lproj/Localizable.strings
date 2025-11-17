@@ -63,3 +63,12 @@
 
 /* Meldung bei zu vielen unterschiedlichen Zeilen, %d = Zeilenlimit */
 "error.tooManyDifferences" = "Die Dateien unterscheiden sich an sehr vielen Stellen (mehr als %d Zeilen mit Unterschieden). Eine detaillierte Ansicht wurde aus Performancegründen nicht berechnet.";
+
+/* Statusleiste: nichts Besonderes ausgewählt / Leerlauf */
+"status.ready" = "Bereit.";
+
+/* Statusleiste: Hover über Adresse in linker Datei, %@ = formatierte Adresse */
+"status.hover.left %@" = "Links: %@";
+
+/* Statusleiste: Hover über Adresse in rechter Datei, %@ = formatierte Adresse */
+"status.hover.right %@" = "Rechts: %@";

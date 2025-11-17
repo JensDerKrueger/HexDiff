@@ -60,7 +60,24 @@ struct ContentView: View {
         placeholderView
           .frame(maxWidth: .infinity, maxHeight: .infinity)
       }
+
+      Divider()
+
+      statusBar
     }
+  }
+
+  private var statusBar: some View {
+    HStack {
+      if let hover = viewModel.hoverStatus {
+        Text(hover)
+      } else {
+        Text("status.ready")
+      }
+      Spacer()
+    }
+    .font(.footnote)
+    .foregroundColor(.secondary)
   }
 
   private var overlayView: some View {

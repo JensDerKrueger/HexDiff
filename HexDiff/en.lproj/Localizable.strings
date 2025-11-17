@@ -63,3 +63,12 @@
 
 /* Error when too many differing lines exist, %d = line limit */
 "error.tooManyDifferences" = "The files differ in many places (more than %d lines with differences). A detailed view was not computed for performance reasons.";
+
+/* Status bar: nothing special selected / idle */
+"status.ready" = "Ready.";
+
+/* Status bar: hover over left file address, %@ = formatted address */
+"status.hover.left %@" = "Left: %@";
+
+/* Status bar: hover over right file address, %@ = formatted address */
+"status.hover.right %@" = "Right: %@";

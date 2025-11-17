@@ -2,13 +2,16 @@ import SwiftUI
 
 struct HexDiffLineView: View {
 
+  @EnvironmentObject var viewModel: HexDiffViewModel
+
   let line: DiffLine
 
   var body: some View {
     HStack(spacing: 16) {
       sideView(
         baseAddress: line.lineOffsetLeft,
-        cells: line.cells.map { ($0.leftByte, $0.kind) }
+        cells: line.cells,
+        side: .left
       )
 
       Divider()
@@ -16,7 +19,8 @@ struct HexDiffLineView: View {
 
       sideView(
         baseAddress: line.lineOffsetRight,
-        cells: line.cells.map { ($0.rightByte, $0.kind) }
+        cells: line.cells,
+        side: .right
       )
     }
     .font(.system(.body, design: .monospaced))
@@ -26,21 +30,32 @@ struct HexDiffLineView: View {
 
   private func sideView(
     baseAddress: Int?,
-    cells: [(UInt8?, DiffKind)]
+    cells: [ByteDiff],
+    side: HoverSide
   ) -> some View {
     HStack(spacing: 8) {
       Text(HexFormatting.addressString(for: baseAddress))
-        .frame(width: 80, alignment: .leading)
+        .frame(width: 85, alignment: .leading)
 
       HStack(spacing: 4) {
-        ForEach(Array(0..<16), id: \.self) { index in
-          let (byte, kind): (UInt8?, DiffKind) = {
+        ForEach(Array(0..<16), id: \.self) { (index: Int) in
+          let result: (byte: UInt8?, offset: Int?, kind: DiffKind) = {
             if index < cells.count {
-              return cells[index]
+              let diff = cells[index]
+              switch side {
+                case .left:
+                  return (diff.leftByte, diff.leftIndex, diff.kind)
+                case .right:
+                  return (diff.rightByte, diff.rightIndex, diff.kind)
+              }
             } else {
-              return (nil, .equal)
+              return (nil, nil, .equal)
             }
           }()
+
+          let byte = result.byte
+          let offset = result.offset
+          let kind = result.kind
 
           Text(HexFormatting.hexString(for: byte))
             .frame(width: 24, alignment: .leading)
@@ -48,25 +63,53 @@ struct HexDiffLineView: View {
             .padding(.vertical, 1)
             .background(cellBackgroundColor(byte: byte, kind: kind))
             .cornerRadius(3)
+            .onHover { inside in
+              if inside {
+                viewModel.setHoveredOffset(side: side, offset: offset)
+              } else {
+                viewModel.setHoveredOffset(side: nil, offset: nil)
+              }
+            }
         }
       }
 
+      Rectangle()
+        .frame(width: 1)
+        .foregroundColor(Color.secondary.opacity(0.4))
+
       HStack(spacing: 2) {
-        ForEach(Array(0..<16), id: \.self) { index in
-          let (byte, kind): (UInt8?, DiffKind) = {
+        ForEach(Array(0..<16), id: \.self) { (index: Int) in
+          let result: (byte: UInt8?, offset: Int?, kind: DiffKind) = {
             if index < cells.count {
-              return cells[index]
+              let diff = cells[index]
+              switch side {
+                case .left:
+                  return (diff.leftByte, diff.leftIndex, diff.kind)
+                case .right:
+                  return (diff.rightByte, diff.rightIndex, diff.kind)
+              }
             } else {
-              return (nil, .equal)
+              return (nil, nil, .equal)
             }
           }()
 
+          let byte = result.byte
+          let offset = result.offset
+          let kind = result.kind
+
           Text(HexFormatting.asciiString(for: byte))
-            .frame(width: 10, alignment: .leading)
+            .frame(width: 11, alignment: .leading)
             .padding(.horizontal, 2)
             .padding(.vertical, 1)
             .background(cellBackgroundColor(byte: byte, kind: kind))
             .cornerRadius(3)
+            .onHover { inside in
+              if inside {
+                viewModel.setHoveredOffset(side: side, offset: offset)
+              } else {
+                viewModel.setHoveredOffset(side: nil, offset: nil)
+              }
+            }
         }
       }
     }
@@ -109,3 +152,4 @@ struct HexDiffLineView: View {
  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+

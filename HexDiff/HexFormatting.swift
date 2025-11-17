@@ -3,17 +3,17 @@ import Foundation
 enum HexFormatting {
 
   static func addressString(for index: Int?) -> String {
-    guard let index = index else { return "        " }
+    guard let index else { return "        " }
     return String(format: "%08X", index)
   }
 
   static func hexString(for byte: UInt8?) -> String {
-    guard let byte = byte else { return "  " }
+    guard let byte else { return "  " }
     return String(format: "%02X", byte)
   }
 
   static func asciiString(for byte: UInt8?) -> String {
-    guard let byte = byte else { return " " }
+    guard let byte else { return " " }
     let scalarValue = UInt32(byte)
     if let scalar = Unicode.Scalar(scalarValue),
        scalar.isASCII,

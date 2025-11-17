@@ -31,9 +31,9 @@ struct HexDiffView: View {
   }
 
   private func headerRow() -> some View {
-    let addressWidth: CGFloat = 80
-    let hexBlockWidth: CGFloat = 510
-    let asciiBlockWidth: CGFloat = 250
+    let addressWidth: CGFloat = 85
+    let hexBlockWidth: CGFloat = 515
+    let asciiBlockWidth: CGFloat = 253
 
     return HStack(spacing: 16) {
       HStack(spacing: 8) {
@@ -46,7 +46,7 @@ struct HexDiffView: View {
         Text("hexHeader.asciiL")
           .frame(width: asciiBlockWidth, alignment: .leading)
       }
-      .padding(.leading, 15)
+      .padding(.leading, 14)
 
       Divider()
         .frame(height: 14)
@@ -65,6 +65,7 @@ struct HexDiffView: View {
     .font(.system(.caption, design: .monospaced))
     .foregroundColor(.secondary)
     .padding(.bottom, 2)
+    .padding(.leading, 5)
   }
 }
 

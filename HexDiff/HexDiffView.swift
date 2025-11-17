@@ -33,7 +33,7 @@ struct HexDiffView: View {
   private func headerRow() -> some View {
     let addressWidth: CGFloat = 85
     let hexBlockWidth: CGFloat = 515
-    let asciiBlockWidth: CGFloat = 253
+    let asciiBlockWidth: CGFloat = 265
 
     return HStack(spacing: 16) {
       HStack(spacing: 8) {

@@ -1,0 +1,65 @@
+/* App title */
+"content.title" = "HexDiff Version 1.0 by www.cgvis.de";
+
+/* Button: pick left file */
+"filePicker.left.button" = "Select left file…";
+
+/* Button: pick right file */
+"filePicker.right.button" = "Select right file…";
+
+/* Hint inside drop zone when no file selected */
+"filePicker.drop.hint" = "Drop file here or click";
+
+/* Status: number of differing lines */
+"status.differences.count %lld" = "Different lines: %lld";
+
+/* Status: current difference position (current / total) */
+"status.current.difference %lld %lld" = "Current: %lld/%lld";
+
+/* Button: go to previous difference */
+"status.previousButton" = "Previous difference";
+
+/* Button: go to next difference */
+"status.nextButton" = "Next difference";
+
+/* Button: close both files */
+"status.closeBothButton" = "Close both files";
+
+/* Placeholder text when no files loaded */
+"placeholder.noFiles" = "Please select two files or drop them here to display a hex diff.";
+
+/* File importer error with error description as %@ */
+"error.fileImporter" = "Error selecting file: %@";
+
+/* Drop error with error description as %@ */
+"error.drop" = "Error during drop: %@";
+
+/* Hex view header: left address column */
+"hexHeader.addrL" = "Addr L";
+
+/* Hex view header: left hex block */
+"hexHeader.hexL" = "Hex L (16 bytes)";
+
+/* Hex view header: left ASCII block */
+"hexHeader.asciiL" = "ASCII L";
+
+/* Hex view header: right address column */
+"hexHeader.addrR" = "Addr R";
+
+/* Hex view header: right hex block */
+"hexHeader.hexR" = "Hex R (16 bytes)";
+
+/* Hex view header: right ASCII block */
+"hexHeader.asciiR" = "ASCII R";
+
+/* Status: file is being loaded and analyzed */
+"processing.loading" = "Loading and analyzing file…";
+
+/* Status: differences are being analyzed */
+"processing.diff" = "Analyzing differences…";
+
+/* Error while loading a file, %@ = error description */
+"error.fileLoad" = "Error loading file: %@";
+
+/* Error when too many differing lines exist, %d = line limit */
+"error.tooManyDifferences" = "The files differ in many places (more than %d lines with differences). A detailed view was not computed for performance reasons.";

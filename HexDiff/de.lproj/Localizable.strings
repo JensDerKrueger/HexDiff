@@ -1,0 +1,65 @@
+/* App-Titel */
+"content.title" = "HexDiff Version 1.0 by www.cgvis.de";
+
+/* Button: linke Datei wählen */
+"filePicker.left.button" = "Linke Datei wählen …";
+
+/* Button: rechte Datei wählen */
+"filePicker.right.button" = "Rechte Datei wählen …";
+
+/* Hinweis in Drop-Zone, wenn keine Datei gewählt ist */
+"filePicker.drop.hint" = "Datei hier ablegen oder klicken";
+
+/* Status: Anzahl unterschiedlicher Zeilen */
+"status.differences.count %lld" = "Unterschiedliche Zeilen: %lld";
+
+/* Status: aktuelle Differenzposition (aktuell / gesamt) */
+"status.current.difference %lld %lld" = "Aktuell: %lld/%lld";
+
+/* Button: zur vorherigen Stelle springen */
+"status.previousButton" = "Vorherige Stelle";
+
+/* Button: zur nächsten Stelle springen */
+"status.nextButton" = "Nächste Stelle";
+
+/* Button: beide Dateien schließen */
+"status.closeBothButton" = "Beide Dateien schließen";
+
+/* Platzhaltertext, wenn noch keine Dateien geladen sind */
+"placeholder.noFiles" = "Bitte zwei Dateien auswählen oder per Drag & Drop ablegen, um ein Hex-Diff anzuzeigen.";
+
+/* Fehler beim FileImporter, %@ ist die Fehlerbeschreibung */
+"error.fileImporter" = "Fehler beim Auswählen der Datei: %@";
+
+/* Fehler beim Drop, %@ ist die Fehlerbeschreibung */
+"error.drop" = "Fehler beim Drop: %@";
+
+/* Hex-Ansicht Kopfzeile: linke Adressspalte */
+"hexHeader.addrL" = "Addr L";
+
+/* Hex-Ansicht Kopfzeile: linker Hex-Block */
+"hexHeader.hexL" = "Hex L (16 Bytes)";
+
+/* Hex-Ansicht Kopfzeile: linker ASCII-Block */
+"hexHeader.asciiL" = "ASCII L";
+
+/* Hex-Ansicht Kopfzeile: rechte Adressspalte */
+"hexHeader.addrR" = "Addr R";
+
+/* Hex-Ansicht Kopfzeile: rechter Hex-Block */
+"hexHeader.hexR" = "Hex R (16 Bytes)";
+
+/* Hex-Ansicht Kopfzeile: rechter ASCII-Block */
+"hexHeader.asciiR" = "ASCII R";
+
+/* Status: Datei wird geladen und analysiert */
+"processing.loading" = "Datei wird geladen und analysiert …";
+
+/* Status: Unterschiede werden analysiert */
+"processing.diff" = "Analysiere Unterschiede …";
+
+/* Fehler beim Laden einer Datei, %@ = Fehlerbeschreibung */
+"error.fileLoad" = "Fehler beim Laden der Datei: %@";
+
+/* Meldung bei zu vielen unterschiedlichen Zeilen, %d = Zeilenlimit */
+"error.tooManyDifferences" = "Die Dateien unterscheiden sich an sehr vielen Stellen (mehr als %d Zeilen mit Unterschieden). Eine detaillierte Ansicht wurde aus Performancegründen nicht berechnet.";

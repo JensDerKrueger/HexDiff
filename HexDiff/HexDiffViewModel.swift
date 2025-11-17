@@ -35,99 +35,7 @@ struct DiffLine: Identifiable {
 
 enum DiffEngine {
 
-  static func makeByteDiffs(left: Data, right: Data) -> [ByteDiff] {
-    let leftBytes = [UInt8](left)
-    let rightBytes = [UInt8](right)
-
-    let difference = rightBytes.difference(from: leftBytes)
-
-    var insertedOffsets = Set<Int>()
-    var removedOffsets = Set<Int>()
-
-    for change in difference {
-      switch change {
-        case .insert(let offset, _, _):
-          insertedOffsets.insert(offset)
-        case .remove(let offset, _, _):
-          removedOffsets.insert(offset)
-      }
-    }
-
-    var results: [ByteDiff] = []
-    results.reserveCapacity(max(leftBytes.count, rightBytes.count))
-
-    var indexLeft = 0
-    var indexRight = 0
-
-    while indexLeft < leftBytes.count || indexRight < rightBytes.count {
-      let leftAvailable = indexLeft < leftBytes.count
-      let rightAvailable = indexRight < rightBytes.count
-
-      let isRemoved = leftAvailable && removedOffsets.contains(indexLeft)
-      let isInserted = rightAvailable && insertedOffsets.contains(indexRight)
-
-      if isRemoved && !isInserted {
-        let diff = ByteDiff(
-          leftIndex: indexLeft,
-          rightIndex: nil,
-          leftByte: leftBytes[indexLeft],
-          rightByte: nil,
-          kind: .removed
-        )
-        results.append(diff)
-        indexLeft += 1
-      } else if isInserted && !isRemoved {
-        let diff = ByteDiff(
-          leftIndex: nil,
-          rightIndex: indexRight,
-          leftByte: nil,
-          rightByte: rightBytes[indexRight],
-          kind: .inserted
-        )
-        results.append(diff)
-        indexRight += 1
-      } else if leftAvailable && rightAvailable {
-        let leftByte = leftBytes[indexLeft]
-        let rightByte = rightBytes[indexRight]
-
-        let kind: DiffKind = (leftByte == rightByte) ? .equal : .changed
-
-        let diff = ByteDiff(
-          leftIndex: indexLeft,
-          rightIndex: indexRight,
-          leftByte: leftByte,
-          rightByte: rightByte,
-          kind: kind
-        )
-        results.append(diff)
-
-        indexLeft += 1
-        indexRight += 1
-      } else if leftAvailable {
-        let diff = ByteDiff(
-          leftIndex: indexLeft,
-          rightIndex: nil,
-          leftByte: leftBytes[indexLeft],
-          rightByte: nil,
-          kind: .removed
-        )
-        results.append(diff)
-        indexLeft += 1
-      } else if rightAvailable {
-        let diff = ByteDiff(
-          leftIndex: nil,
-          rightIndex: indexRight,
-          leftByte: nil,
-          rightByte: rightBytes[indexRight],
-          kind: .inserted
-        )
-        results.append(diff)
-        indexRight += 1
-      }
-    }
-
-    return results
-  }
+  private static let maxLookahead = 100
 
   static func makeDiffLines(
     left: Data,
@@ -135,42 +43,160 @@ enum DiffEngine {
     bytesPerLine: Int = 16,
     differenceLineLimit: Int? = nil
   ) -> (lines: [DiffLine], hitLimit: Bool) {
-    let byteDiffs = makeByteDiffs(left: left, right: right)
-    guard !byteDiffs.isEmpty else { return ([], false) }
+    let leftBytes = [UInt8](left)
+    let rightBytes = [UInt8](right)
 
-    let totalLines = (byteDiffs.count + bytesPerLine - 1) / bytesPerLine
+    let leftCount = leftBytes.count
+    let rightCount = rightBytes.count
+
+    if leftCount == 0 && rightCount == 0 {
+      return ([], false)
+    }
+
     var lines: [DiffLine] = []
-    lines.reserveCapacity(min(totalLines, differenceLineLimit ?? totalLines))
+    var hitLimit = false
 
-    for lineIndex in 0..<totalLines {
-      let start = lineIndex * bytesPerLine
-      let end = min(start + bytesPerLine, byteDiffs.count)
-      let slice = Array(byteDiffs[start..<end])
+    var lineId = 0
 
-      let hasDifference = slice.contains { $0.kind != .equal }
-      if !hasDifference {
-        continue
+    var iL = 0
+    var iR = 0
+
+    while iL < leftCount || iR < rightCount {
+      var cells: [ByteDiff] = []
+      cells.reserveCapacity(bytesPerLine)
+      var hasDifferenceInLine = false
+
+      while cells.count < bytesPerLine && (iL < leftCount || iR < rightCount) {
+        let leftAvailable = iL < leftCount
+        let rightAvailable = iR < rightCount
+
+        let leftByte = leftAvailable ? leftBytes[iL] : nil
+        let rightByte = rightAvailable ? rightBytes[iR] : nil
+
+        let cell: ByteDiff
+
+        if let l = leftByte, let r = rightByte {
+          if l == r {
+            cell = ByteDiff(
+              leftIndex: iL,
+              rightIndex: iR,
+              leftByte: l,
+              rightByte: r,
+              kind: .equal
+            )
+            iL += 1
+            iR += 1
+          } else {
+            var leftAheadMatches = false
+            var rightAheadMatches = false
+
+            let maxLookL = min(DiffEngine.maxLookahead, leftCount - iL - 1)
+            let maxLookR = min(DiffEngine.maxLookahead, rightCount - iR - 1)
+
+            var j = 1
+            while j <= maxLookL || j <= maxLookR {
+              if j <= maxLookL, !leftAheadMatches {
+                if leftBytes[iL + j] == r {
+                  leftAheadMatches = true
+                }
+              }
+              if j <= maxLookR, !rightAheadMatches {
+                if rightBytes[iR + j] == l {
+                  rightAheadMatches = true
+                }
+              }
+              if leftAheadMatches && rightAheadMatches {
+                break
+              }
+              j += 1
+            }
+
+            if leftAheadMatches && !rightAheadMatches {
+              cell = ByteDiff(
+                leftIndex: iL,
+                rightIndex: nil,
+                leftByte: l,
+                rightByte: nil,
+                kind: .removed
+              )
+              iL += 1
+            } else if rightAheadMatches && !leftAheadMatches {
+              cell = ByteDiff(
+                leftIndex: nil,
+                rightIndex: iR,
+                leftByte: nil,
+                rightByte: r,
+                kind: .inserted
+              )
+              iR += 1
+            } else {
+              cell = ByteDiff(
+                leftIndex: iL,
+                rightIndex: iR,
+                leftByte: l,
+                rightByte: r,
+                kind: .changed
+              )
+              iL += 1
+              iR += 1
+            }
+          }
+        } else if let l = leftByte {
+          cell = ByteDiff(
+            leftIndex: iL,
+            rightIndex: nil,
+            leftByte: l,
+            rightByte: nil,
+            kind: .removed
+          )
+          iL += 1
+        } else if let r = rightByte {
+          cell = ByteDiff(
+            leftIndex: nil,
+            rightIndex: iR,
+            leftByte: nil,
+            rightByte: r,
+            kind: .inserted
+          )
+          iR += 1
+        } else {
+          break
+        }
+
+        if cell.kind != .equal {
+          hasDifferenceInLine = true
+        }
+
+        cells.append(cell)
       }
 
-      let leftOffsets = slice.compactMap { $0.leftIndex }
-      let rightOffsets = slice.compactMap { $0.rightIndex }
+      if hasDifferenceInLine {
+        let leftOffsets = cells.compactMap { $0.leftIndex }
+        let rightOffsets = cells.compactMap { $0.rightIndex }
 
-      let line = DiffLine(
-        id: lineIndex,
-        lineOffsetLeft: leftOffsets.min(),
-        lineOffsetRight: rightOffsets.min(),
-        cells: slice
-      )
+        let line = DiffLine(
+          id: lineId,
+          lineOffsetLeft: leftOffsets.min(),
+          lineOffsetRight: rightOffsets.min(),
+          cells: cells
+        )
+        lines.append(line)
 
-      lines.append(line)
+        if let limit = differenceLineLimit,
+           lines.count > limit {
+          hitLimit = true
+          break
+        }
+      }
 
-      if let limit = differenceLineLimit,
-         lines.count > limit {
-        return (lines, true)
+      lineId += 1
+
+      if !(iL < leftCount || iR < rightCount) {
+        break
       }
     }
 
-    return (lines, false)
+    return (lines, hitLimit)
   }
 }
 
